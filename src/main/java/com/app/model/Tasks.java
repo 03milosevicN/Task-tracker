@@ -2,11 +2,22 @@ package com.app.model;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.awt.Desktop;
-
+import org.commonmark.node.Node;
+import org.commonmark.node.Text;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.text.TextContentRenderer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -29,11 +40,13 @@ public class Tasks {
         this.id = Tasks.counter++;
         this.description = "No initial description";
         this.status = Status.ToBeDone;
-        //! not ISO 8061 compliant.
+        // ! not ISO 8061 compliant.
         this.createdAt = LocalDate.now().toString();
     }
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
     public String getDescription() {
         return description;
@@ -59,14 +72,14 @@ public class Tasks {
         this.createdAt = LocalDate.now().toString();
     }
 
-
     /**
      * Task accumulator.
      */
     private static final ArrayList<Tasks> tasks = new ArrayList<>();
 
-    public static ArrayList<Tasks> getTasks() { return tasks; }
-
+    public static ArrayList<Tasks> getTasks() {
+        return tasks;
+    }
 
     @Override
     public String toString() {
@@ -110,8 +123,8 @@ public class Tasks {
         int atThisId;
         String options = reader.readLine();
         switch (options) {
-            case "desc":    
-                
+            case "desc":
+
                 System.out.println("Pick description based on task's ID: ");
                 atThisId = Integer.parseInt(reader.readLine());
 
@@ -119,14 +132,13 @@ public class Tasks {
                     System.out.println("Add new description: ");
                     String newDesc = reader.readLine();
                     tasks.get(atThisId).setDescription(newDesc);
-                }
-                catch (IndexOutOfBoundsException e) {
+                } catch (IndexOutOfBoundsException e) {
                     System.out.println("ID of this task is out of bounds.");
                 }
                 break;
-                
+
             case "status":
-                
+
                 System.out.println("Pick status based on task's ID: ");
                 atThisId = Integer.parseInt(reader.readLine());
 
@@ -134,8 +146,7 @@ public class Tasks {
                     System.out.println("Change status: ");
                     String newStatus = reader.readLine();
                     tasks.get(atThisId).setStatus(Status.valueOf(newStatus));
-                } 
-                catch (IndexOutOfBoundsException e) {
+                } catch (IndexOutOfBoundsException e) {
                     System.out.println("ID of this task is out of bounds.");
                 }
                 break;
@@ -150,15 +161,14 @@ public class Tasks {
      * Deletes task at a valid given ID.
      */
     public void deleteTask(BufferedReader reader) throws IOException {
-        
+
         System.out.println("Pick task based on it's ID: ");
         int atThisId = Integer.parseInt(reader.readLine());
 
         try {
-            tasks.remove( tasks.get(atThisId) );
+            tasks.remove(tasks.get(atThisId));
             System.out.println("Successfully removed task.");
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             System.out.println("ID out of bounds.");
             return;
         }
@@ -202,20 +212,39 @@ public class Tasks {
         }
     }
 
+    public void manual(BufferedReader reader) throws IOException {
+        
+        Path filePath = Paths.get("INIT.md");
+        
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+
+        List<String> subLines = lines.subList(6, 34);
+
+        String markdownSlice = String.join("\n", subLines);
+
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(markdownSlice);
+
+        TextContentRenderer renderer = TextContentRenderer.builder().build();
+        String text = renderer.render(document);
+
+        System.out.println(text);
+    }
+
     // ! Currently only works for all tasks.
     // ! Exports data to home_path\Documents\.
     public void exportList() throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
-        
+
         String home_path = System.getProperty("user.home");
         File folder = new File(home_path + "/Documents");
 
         Desktop.getDesktop().open(folder);
-        
+
         File storeJSON = new File(folder, "tasks.json");
         mapper.writerWithDefaultPrettyPrinter().writeValue(storeJSON, getTasks());
-    
+
         System.out.println("Exported to: " + storeJSON.getAbsolutePath());
     }
 

@@ -1,10 +1,10 @@
 package com.app;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import com.app.model.Tasks;
-
 
 public class App {
 
@@ -48,10 +48,42 @@ public class App {
                 e.getCause();
             }
         });
+        tokens.put("man", () -> {
+            try {
+                tasks.manual(reader);
+            } catch (IOException e) {
+                e.getCause();
+            }
+        });
     }
 
 
-    public static void main(String[] args) throws IOException { runPrompt(); }
+    //? ASCII MOTD.
+    static String ascii_art_motd = """
+                                     mm               mm
+              ##                     ##               ##    
+            #######  ##    ##   m###m##  ##    ##     ##
+              ##     ##    ##  ##"  "##  ##    ##     ##
+              ##     ##    ##  ##    ##  ##    ##     "" 
+              ##     ##    ##  ##    ##  ##    ##
+              ##mmm  ##mmm###  "##mm###  ##mmm###     mm
+               \"""   \""" ""   \""" ""   \""" ""     ""
+            """;
+
+    //? ASCII MOTD.
+    
+    
+    public static void main(String[] args) throws IOException  {
+        System.out.println(ascii_art_motd);
+        
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.getCause();
+        }
+
+        runPrompt();
+    }
 
     /**
      * REPL, prompts for existing mapped tasks.
@@ -76,7 +108,6 @@ public class App {
 
     }
 
-
     private static void run(String source) {
         switch (source) {
             case "add":
@@ -94,12 +125,13 @@ public class App {
             case "export":
                 tokens.get("export").run();
                 break;
+            case "man":
+                tokens.get("man").run();    
+                break;
             default:
                 System.out.println("Invalid method.");
                 break;
         }
     }
-
-
 
 }

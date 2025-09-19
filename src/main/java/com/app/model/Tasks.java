@@ -29,13 +29,11 @@ public class Tasks {
         this.id = Tasks.counter++;
         this.description = "No initial description";
         this.status = Status.ToBeDone;
-        // ! not ISO 8061 compliant.
+        //! not ISO 8061 compliant.
         this.createdAt = LocalDate.now().toString();
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
 
     public String getDescription() {
         return description;
@@ -61,11 +59,14 @@ public class Tasks {
         this.createdAt = LocalDate.now().toString();
     }
 
+
+    /**
+     * Task accumulator.
+     */
     private static final ArrayList<Tasks> tasks = new ArrayList<>();
 
-    public static ArrayList<Tasks> getTasks() {
-        return tasks;
-    }
+    public static ArrayList<Tasks> getTasks() { return tasks; }
+
 
     @Override
     public String toString() {
@@ -76,7 +77,7 @@ public class Tasks {
     }
 
     /**
-     * Creates a new task.
+     * Creates a new task based on a given task description.
      * 
      * @return new task.
      */
@@ -97,37 +98,70 @@ public class Tasks {
     }
 
     /**
-     * Updates existing task.
+     * Updates existing task at a valid given ID.
      * 
      * @return updated task.
      */
     public void updateTask(BufferedReader reader) throws IOException {
-        System.out.println("<DEBUG> Updating task... <DEBUG>");
+        System.out.println("Choose which field to update in format of [command] -> [explanation]: \n");
+        System.out.println(" 'desc' -> update description. ");
+        System.out.println(" 'status' -> update status. ");
 
+        int atThisId;
         String options = reader.readLine();
         switch (options) {
-            case "desc":
-                //? How do you know which exact task you are updating?
-                setDescription(options);
-                System.out.println("Description updated.");
+            case "desc":    
+                
+                System.out.println("Pick description based on task's ID: ");
+                atThisId = Integer.parseInt(reader.readLine());
+
+                try {
+                    System.out.println("Add new description: ");
+                    String newDesc = reader.readLine();
+                    tasks.get(atThisId).setDescription(newDesc);
+                }
+                catch (IndexOutOfBoundsException e) {
+                    System.out.println("ID of this task is out of bounds.");
+                }
                 break;
+                
             case "status":
-                System.out.println("Currently cannot change status.");
+                
+                System.out.println("Pick status based on task's ID: ");
+                atThisId = Integer.parseInt(reader.readLine());
+
+                try {
+                    System.out.println("Change status: ");
+                    String newStatus = reader.readLine();
+                    tasks.get(atThisId).setStatus(Status.valueOf(newStatus));
+                } 
+                catch (IndexOutOfBoundsException e) {
+                    System.out.println("ID of this task is out of bounds.");
+                }
                 break;
+
             default:
-                System.out.println("Field does not exist.");
+                System.out.println("Invalid field.");
                 break;
         }
-        // based on a switch case choose which field to update. If the updated
-        // field is status, write separate task getters based on status and use those in
-        // listTasks() switch.
     }
 
     /**
-     * Deletes task.
+     * Deletes task at a valid given ID.
      */
-    public void deleteTask() {
-        System.out.println("<DEBUG> Deleting task... <DEBUG>");
+    public void deleteTask(BufferedReader reader) throws IOException {
+        
+        System.out.println("Pick task based on it's ID: ");
+        int atThisId = Integer.parseInt(reader.readLine());
+
+        try {
+            tasks.remove( tasks.get(atThisId) );
+            System.out.println("Successfully removed task.");
+        }
+        catch (IndexOutOfBoundsException e) {
+            System.out.println("ID out of bounds.");
+            return;
+        }
 
     }
 
@@ -137,8 +171,6 @@ public class Tasks {
      * @return list of tasks.
      */
     public void listTasks(BufferedReader reader) throws IOException {
-        System.out.println("<DEBUG> Listing tasks... <DEBUG>");
-
         System.out.println("Which tasks do you need?");
         String options = reader.readLine();
 

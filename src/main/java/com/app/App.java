@@ -27,7 +27,13 @@ public class App {
                 e.getCause();
             }
         });
-        tokens.put("delete", tasks::deleteTask);
+        tokens.put("delete", () -> {
+            try {
+                tasks.deleteTask(reader);
+            } catch (IOException e) {
+                e.getCause();
+            }
+        });
         tokens.put("list", () -> {
             try {
                 tasks.listTasks(reader);
@@ -47,7 +53,11 @@ public class App {
 
     public static void main(String[] args) throws IOException { runPrompt(); }
 
-
+    /**
+     * REPL, prompts for existing mapped tasks.
+     * 
+     * @throws IOException
+     */
     private static void runPrompt() throws IOException {
 
         for (;;) {

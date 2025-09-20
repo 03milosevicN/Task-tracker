@@ -7,15 +7,11 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.awt.Desktop;
 import org.commonmark.node.Node;
-import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.text.TextContentRenderer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,6 +75,15 @@ public class Tasks {
 
     public static ArrayList<Tasks> getTasks() {
         return tasks;
+    }
+    public static ArrayList<Tasks> getTasksByStatus(Status status) {
+        ArrayList<Tasks> filteredTasks = new ArrayList<>();
+        for (Tasks task : tasks) {
+            if (task.getStatus() == status) {
+                filteredTasks.add(task);
+            }
+        }
+        return filteredTasks;
     }
 
     @Override
@@ -184,26 +189,20 @@ public class Tasks {
         System.out.println("Which tasks do you need?");
         String options = reader.readLine();
 
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+
         switch (options) {
             case "tbd":
-                if (this.getStatus() == Status.ToBeDone) {
-                    System.out.println("List of all to-be-done tasks" + getTasks());
-                }
+                System.out.println("List of TO BE DONE: " + writer.writeValueAsString(getTasksByStatus(Status.ToBeDone)));
                 break;
             case "inp":
-                if (this.getStatus() == Status.InProgress) {
-                    System.out.println("List of all in-progress tasks" + getTasks());
-                }
+                System.out.println("List of all IN PROGRESS: " + writer.writeValueAsString(getTasksByStatus(Status.InProgress)));
                 break;
             case "done":
-                if (this.getStatus() == Status.Done) {
-                    System.out.println("List of all finished tasks" + getTasks());
-                }
+                System.out.println("List of all DONE: " + writer.writeValueAsString(getTasksByStatus(Status.Done)));
                 break;
             case "all":
-                // TODO: logic belongs in a method.
-                ObjectMapper mapper = new ObjectMapper();
-                ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
                 System.out.println("List of all tasks: " + writer.writeValueAsString(getTasks()));
                 break;
             default:
@@ -212,13 +211,19 @@ public class Tasks {
         }
     }
 
-    public void manual(BufferedReader reader) throws IOException {
-        
+    public void clear() {
+        for (int i = 0; i < 60; ++i) {
+            System.out.println("\t\n");
+        }
+    }
+
+    public void manual() throws IOException {
+
         Path filePath = Paths.get("INIT.md");
-        
+
         List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
 
-        List<String> subLines = lines.subList(6, 34);
+        List<String> subLines = lines.subList(6, 36);
 
         String markdownSlice = String.join("\n", subLines);
 
@@ -231,8 +236,9 @@ public class Tasks {
         System.out.println(text);
     }
 
-    // ! Currently only works for all tasks.
-    // ! Exports data to home_path\Documents\.
+    /**
+     * Exports current CLI session's tasks to home/Documents folder.
+     */
     public void exportList() throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();

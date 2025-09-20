@@ -29,7 +29,8 @@ After execution, you're presented with the following commands:
     
     Usage:
     1) `list`
-    2) `[criteria]`
+    2) `[criteria: tbd (to be done), inp (in progress), done or all]` 
 
 - `man`: User manual. Lists help for each command. 
-    
+
+- `exit`: Quit the terminal.    

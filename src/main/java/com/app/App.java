@@ -50,10 +50,13 @@ public class App {
         });
         tokens.put("man", () -> {
             try {
-                tasks.manual(reader);
+                tasks.manual();
             } catch (IOException e) {
                 e.getCause();
             }
+        });
+        tokens.put("clear", () -> {
+            tasks.clear();
         });
     }
 
@@ -127,6 +130,9 @@ public class App {
                 break;
             case "man":
                 tokens.get("man").run();    
+                break;
+            case "clear":
+                tokens.get("clear").run();
                 break;
             default:
                 System.out.println("Invalid method.");
